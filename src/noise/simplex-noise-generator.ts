@@ -41,7 +41,7 @@ export class SimplexNoiseGenerator {
         let val: number = 0.0;
 
         for (let n: number = 0; n < octaves; n++) {
-            val += this.noise(vx, vy, vz) * amplitude;
+            val += this._noise(vx, vy, vz) * amplitude;
 
             vx *= lacunarity;
             vy *= lacunarity;
@@ -59,7 +59,7 @@ export class SimplexNoiseGenerator {
         return Util.lerp(0, 255, val) | 0;
     }
 
-    public noise(x: number, y: number, z: number): number {
+    private _noise(x: number, y: number, z: number): number {
         const onethird: number = SimplexNoiseGenerator.ONE_THIRD;
         const onesixth: number = SimplexNoiseGenerator.ONE_SIXTH;
         const A: Int32Array = this._A;
