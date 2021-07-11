@@ -18,7 +18,7 @@ export interface SimplexNoiseGeneratorSettings {
  */
 export class SimplexNoiseGenerator {
     public static readonly DEFAULT_SETTINGS: SimplexNoiseGeneratorSettings = {
-        seed: 0,
+        seed: 42,
         octaves: 1,
         multiplier: 25,
         amplitude: 0.5,
@@ -61,6 +61,7 @@ export class SimplexNoiseGenerator {
         let vy: number = y / settings.multiplier;
         let vz: number = z / settings.multiplier;
         let val: number = 0.0;
+
         let amplitude = settings.amplitude;
 
         for (let n: number = 0; n < settings.octaves; n++) {
@@ -80,6 +81,12 @@ export class SimplexNoiseGenerator {
         const val: number = this.coherentNoise(x, y, z);
 
         return Util.lerp(0, 255, val) | 0;
+    }
+
+    public getHeight(x: number, y: number, z: number, min: number, max: number): number {
+        const val: number = this.coherentNoise(x, y, z);
+
+        return Util.map(val, -1, 1, min, max);
     }
 
     private _noise(x: number, y: number, z: number): number {
