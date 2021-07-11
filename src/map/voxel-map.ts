@@ -1,5 +1,5 @@
 import { MortonKey, VoxelChunk, VoxelIndex } from "@ovistek/bvx.ts";
-import { SimplexNoiseGenerator } from "../noise/simplex-noise-generator";
+import { SimplexNoiseGenerator, SimplexNoiseGeneratorSettings } from "../noise/simplex-noise-generator";
 
 /**
  * Allows generating psuedo-random Voxel Maps
@@ -8,8 +8,8 @@ export class VoxelMap {
     private static readonly _tmpIndex: VoxelIndex = new VoxelIndex();
     private readonly _generator: SimplexNoiseGenerator;
 
-    constructor(seed: number = 0) {
-        this._generator = new SimplexNoiseGenerator(seed);
+    constructor(settings: SimplexNoiseGeneratorSettings | null = null) {
+        this._generator = new SimplexNoiseGenerator(settings);
     }
 
     /**

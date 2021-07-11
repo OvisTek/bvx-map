@@ -1,6 +1,15 @@
 import { Random64 } from "../util/random-64";
 import { Util } from "../util/util";
 
+export interface SimplexNoiseGeneratorSettings {
+    seed: number;
+    octaves: number;
+    multiplier: number;
+    amplitude: number;
+    lacunarity: number;
+    persistence: number;
+}
+
 /**
  * TypeScript implementation for a Simplex Noise Generator
  * See https://gist.github.com/jstanden/1489447
@@ -8,15 +17,24 @@ import { Util } from "../util/util";
  * Modified slightly to work properly with web
  */
 export class SimplexNoiseGenerator {
+    public static readonly DEFAULT_SETTINGS: SimplexNoiseGeneratorSettings = {
+        seed: 0,
+        octaves: 1,
+        multiplier: 25,
+        amplitude: 0.5,
+        lacunarity: 2.0,
+        persistence: 0.9
+    }
+
     private static readonly ONE_THIRD: number = 0.333333333;
     private static readonly ONE_SIXTH: number = 0.166666667;
 
     // arrays
     private readonly _A: Int32Array = new Int32Array(3);
     private readonly _T: Int32Array = new Int32Array(8);
+    private readonly _settings: SimplexNoiseGeneratorSettings;
 
     // floats
-    private _s: number = 0.0;
     private _u: number = 0.0;
     private _v: number = 0.0;
     private _w: number = 0.0;
@@ -26,28 +44,33 @@ export class SimplexNoiseGenerator {
     private _j: number = 0 | 0;
     private _k: number = 0 | 0;
 
-    constructor(seed: number = 0) {
-        const rng: Random64 = new Random64(seed);
+    constructor(settings: SimplexNoiseGeneratorSettings | null = null) {
+        this._settings = settings || SimplexNoiseGenerator.DEFAULT_SETTINGS;
+
+        const rng: Random64 = new Random64(this._settings.seed);
 
         for (let q: number = 0; q < 8; q++) {
             this._T[q] = rng.next();
         }
     }
 
-    public coherentNoise(x: number, y: number, z: number, octaves: number = 1, multiplier: number = 25, amplitude: number = 0.5, lacunarity: number = 2, persistence: number = 0.9): number {
-        let vx: number = x / multiplier;
-        let vy: number = y / multiplier;
-        let vz: number = z / multiplier;
-        let val: number = 0.0;
+    public coherentNoise(x: number, y: number, z: number): number {
+        const settings: SimplexNoiseGeneratorSettings = this._settings;
 
-        for (let n: number = 0; n < octaves; n++) {
+        let vx: number = x / settings.multiplier;
+        let vy: number = y / settings.multiplier;
+        let vz: number = z / settings.multiplier;
+        let val: number = 0.0;
+        let amplitude = settings.amplitude;
+
+        for (let n: number = 0; n < settings.octaves; n++) {
             val += this._noise(vx, vy, vz) * amplitude;
 
-            vx *= lacunarity;
-            vy *= lacunarity;
-            vz *= lacunarity;
+            vx *= settings.lacunarity;
+            vy *= settings.lacunarity;
+            vz *= settings.lacunarity;
 
-            amplitude *= persistence;
+            amplitude *= settings.persistence;
         }
 
         return val;
@@ -78,7 +101,6 @@ export class SimplexNoiseGenerator {
         A[1] = 0;
         A[2] = 0;
 
-        this._s = s;
         this._i = i;
         this._j = j;
         this._k = k;
