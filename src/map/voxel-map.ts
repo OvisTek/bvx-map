@@ -30,7 +30,7 @@ export class VoxelMap {
         // convert from local to world coordinate
         const worldCoordX: number = localCoordinate.x * mapOffset;
         const worldCoordY: number = localCoordinate.y * mapOffset;
-        const worldCoordZ: number = localCoordinate.z * mapOffset
+        const worldCoordZ: number = localCoordinate.z * mapOffset;
 
         const vindex: VoxelIndex = VoxelMap._tmpIndex;
         const gen: SimplexNoiseGenerator = this._generator;
@@ -48,10 +48,15 @@ export class VoxelMap {
 
             // get the noise for the provided BitVoxel at provided world coordinate
             const density: number = gen.getDensity(worldCoordBVX, worldCoordBVY, worldCoordBVZ);
+            const height: number = gen.getHeight(worldCoordBVX, 0.0, worldCoordBVZ, 0, 8 * mapOffset);
 
-            // decide if we want to set or unset the bitvoxel at provided position
-            if (density > densityCheck) {
-                chunk.setBitVoxel(vindex);
+            if (worldCoordBVY < height) {
+                if (density > densityCheck) {
+                    chunk.setBitVoxel(vindex);
+                }
+                else {
+                    chunk.unsetBitVoxel(vindex);
+                }
             }
             else {
                 chunk.unsetBitVoxel(vindex);
